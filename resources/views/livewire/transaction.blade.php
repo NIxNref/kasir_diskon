@@ -1,4 +1,22 @@
 <div>
+    <div class="row mb-4">
+        <div class="col-4">
+            <div class="card border-primary">
+                <div class="card-body">
+                    <h5>Scan Barcode</h5>
+                    <div id="scanner-container"
+                        style="width: 100%; height: 150px; border: 1px solid #ccc; position: relative;">
+                        <video id="scanner-video" style="width: 100%; height: 100%;"></video>
+                        <div id="scanner-overlay"
+                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); display: none;">
+                            <p style="color: white; text-align: center; margin-top: 50%;">Scanning...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Add Product and Member ID Section -->
     <div class="row mb-4">
         <div class="col-12">
@@ -7,32 +25,19 @@
                     <h5>Add Product and Member Information</h5>
                     <div>
                         @if (session()->has('error'))
-                            <div class="alert alert-danger">
-                                {{ session('error') }}
-                            </div>
+                            <div class="alert alert-danger">{{ session('error') }}</div>
                         @endif
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="product_id" class="form-label">Product</label>
-                            <select class="form-control" wire:model="product_id">
-                                <option value="">Select Product</option>
-                                @foreach ($products as $product)
-                                    <option value="{{ $product->id }}">
-                                        {{ $product->name }} - {{ ucfirst($product->discount_type) }}
-                                        @if ($product->discount_type === 'percentage')
-                                            ({{ $product->discount_value }}%)
-                                        @endif
-                                        @if ($product->event_discount !== 'none')
-                                            - {{ ucfirst($product->event_discount) }}
-                                        @endif
-                                    </option>
-                                @endforeach
-                            </select>
+                            <label for="product_code" class="form-label">Product Code</label>
+                            <input type="text" id="barcodeInput" class="form-control" wire:model="product_code"
+                                placeholder="Enter Product Code">
                         </div>
                         <div class="col-md-3 mb-3">
                             <label for="quantity" class="form-label">Quantity</label>
-                            <input type="number" class="form-control" wire:model="quantity" min="1">
+                            <input type="number" class="form-control" wire:model="quantity" min="1"
+                                value="1">
                         </div>
                         <div class="col-md-3 mb-3">
                             <label for="member_id" class="form-label">Member ID (Optional)</label>
@@ -42,6 +47,11 @@
                     <div class="text-end">
                         <button type="button" class="btn btn-primary" wire:click="addToCart">Add to Cart</button>
                     </div>
+                    @if ($availableDiscount)
+                        <div class="alert alert-info mt-3">
+                            <strong>Available Discount:</strong> {{ $availableDiscount }}
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -53,33 +63,41 @@
             <div class="card border-primary">
                 <div class="card-body">
                     <h5>Cart</h5>
+                    <!-- Cart Section -->
                     <div class="table-responsive">
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    <th>No</th>
                                     <th>Product</th>
                                     <th>Quantity</th>
-                                    <th>Price Before Discount</th>
+                                    <th>Price</th>
                                     <th>Discount</th>
-                                    <th>Discount (%)</th>
-                                    <th>Total Price</th>
+                                    <th>Total</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($cart as $index => $item)
                                     <tr>
-                                        <td>{{ $loop->iteration }}</td>
                                         <td>{{ $item['name'] }}</td>
-                                        <td>{{ $item['quantity'] }}</td>
-                                        <td>{{ number_format($item['price_before_discount'], 2, ',', '.') }}</td>
-                                        <td>{{ $item['discount'] }}</td>
-                                        <!-- Display event discount or other discount -->
-                                        <td>{{ $item['discount_percentage'] }}%</td>
-                                        <td>{{ number_format($item['total_price'], 2, ',', '.') }}</td>
                                         <td>
-                                            <button class="btn btn-danger"
+                                            <div class="d-flex align-items-center">
+                                                <button class="btn btn-sm btn-outline-secondary me-2"
+                                                    wire:click="decreaseQuantity({{ $index }})">
+                                                    -
+                                                </button>
+                                                <span>{{ $item['quantity'] }}</span>
+                                                <button class="btn btn-sm btn-outline-secondary ms-2"
+                                                    wire:click="increaseQuantity({{ $index }})">
+                                                    +
+                                                </button>
+                                            </div>
+                                        </td>
+                                        <td>Rp {{ number_format($item['price'], 2, ',', '.') }}</td>
+                                        <td>{{ $item['discount'] }}</td>
+                                        <td>Rp {{ number_format($item['total_price'], 2, ',', '.') }}</td>
+                                        <td>
+                                            <button class="btn btn-danger btn-sm"
                                                 wire:click="removeFromCart({{ $index }})">Remove</button>
                                         </td>
                                     </tr>
@@ -94,7 +112,7 @@
                                 <option value="cash">Cash</option>
                                 <option value="credit_card">Credit Card</option>
                                 <option value="debit_card">Debit Card</option>
-                                <option value="qris">qris</option>
+                                <option value="qris">QRIS</option>
                             </select>
                         </div>
                     </div>
@@ -141,3 +159,66 @@
         </div>
     @endif
 </div>
+
+<!-- Load QuaggaJS -->
+<script src="https://cdn.jsdelivr.net/npm/quagga2@1.2.6/dist/quagga.min.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const barcodeInput = document.getElementById('barcodeInput');
+        const quantityInput = document.querySelector('input[wire\\:model="quantity"]');
+        let debounceTimeout = null; // Variable to store the debounce timeout
+        barcodeInput.focus();
+
+        Quagga.init({
+            inputStream: {
+                name: "Live",
+                type: "LiveStream",
+                target: document.querySelector('#scanner-container'),
+                constraints: {
+                    facingMode: {
+                        ideal: "environment"
+                    }
+                }
+            },
+            decoder: {
+                readers: ["code_128_reader", "ean_reader", "ean_8_reader", "upc_reader"]
+            }
+        }, function(err) {
+            if (err) {
+                console.error("Quagga init error:", err);
+                return;
+            }
+            Quagga.start();
+        });
+
+        Quagga.onDetected(function(data) {
+            const barcode = data.codeResult.code;
+
+            // Debounce to prevent spamming addToCart
+            if (debounceTimeout) {
+                clearTimeout(debounceTimeout);
+            }
+
+            debounceTimeout = setTimeout(() => {
+                // Update the product_code property in Livewire
+                @this.set('product_code', barcode);
+
+                // Set quantity to 1 if not already set
+                if (!quantityInput.value || quantityInput.value <= 0) {
+                    quantityInput.value = 1;
+                    quantityInput.dispatchEvent(new Event('input'));
+                }
+
+                // Call the addToCart method in Livewire
+                @this.call('addToCart');
+
+                // Clear the input field after a short delay to allow for continuous scanning
+                setTimeout(() => {
+                    barcodeInput.value = '';
+                    barcodeInput.dispatchEvent(new Event('input'));
+                }, 500);
+            }, 500); // Debounce delay of 500ms
+        });
+    });
+</script>

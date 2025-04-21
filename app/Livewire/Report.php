@@ -13,6 +13,18 @@ class Report extends Component
     public $transactions = [];
     public $totalSales = 0;
     public $totalRevenue = 0;
+    public $selectedTransaction = null;
+
+    
+    public function showTransactionDetails($transactionId)
+    {
+        $this->selectedTransaction = Transactions::with('items.product')->find($transactionId);
+    }
+
+    public function closeModal()
+    {
+        $this->selectedTransaction = null;
+    }
 
     public function mount()
     {

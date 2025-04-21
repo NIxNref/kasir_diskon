@@ -23,14 +23,6 @@
 
 <body>
     <div class="container-xxl position-relative bg-white d-flex p-0">
-        <!-- Sidebar Start -->
-        @if (Auth::user() && Auth::user()->role !== 'kasir')
-            @include('components.layouts.sidebar')
-        @else
-            @livewire('sidebar-kasir')
-        @endif
-        <!-- Sidebar End -->
-
         <!-- Content Start -->
         <div class="content">
             <!-- Navbar Start -->
@@ -59,11 +51,10 @@
             <!-- Navbar End -->
 
             <!-- Main Content -->
-            <main class="py-4 px-4">
-                {{ $slot }}
-            </main>
+            @yield('content')
         </div>
         <!-- Content End -->
+        @yield()
     </div>
 
     <!-- Scripts -->

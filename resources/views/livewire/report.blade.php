@@ -21,7 +21,7 @@
 
     <div class="row mb-4">
         <div class="col-md-6">
-            <div class="card text-white bg-info" wire:click="showTransactionDetails('totalSales')">
+            <div class="card text-white bg-info">
                 <div class="card-body">
                     <h5 class="card-title">Total Sales</h5>
                     <p class="card-text">{{ $totalSales }}</p>
@@ -29,7 +29,7 @@
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card text-white bg-success" wire:click="showTransactionDetails('totalRevenue')">
+            <div class="card text-white bg-success">
                 <div class="card-body">
                     <h5 class="card-title">Total Revenue</h5>
                     <p class="card-text">Rp {{ number_format($totalRevenue, 2, ',', '.') }}</p>
@@ -47,7 +47,8 @@
                         <th>Transaction ID</th>
                         <th>Date</th>
                         <th>Total Price</th>
-                        <th>Items</th>
+                        <th>Cashier</th> <!-- Add this column -->
+                        <th>Details</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -57,12 +58,9 @@
                             <td>{{ $transaction->id }}</td>
                             <td>{{ $transaction->created_at->format('Y-m-d') }}</td>
                             <td>Rp {{ number_format($transaction->total_price, 2, ',', '.') }}</td>
+                            <td>{{ $transaction->cashier->name }}</td> <!-- Display cashier name -->
                             <td>
-                                <ul>
-                                    @foreach ($transaction->items as $item)
-                                        <li>{{ $item->product->name }} ({{ $item->quantity }} pcs)</li>
-                                    @endforeach
-                                </ul>
+                                click to view details
                             </td>
                         </tr>
                     @endforeach
@@ -70,4 +68,35 @@
             </table>
         </div>
     </div>
+
+    <!-- Modal for Transaction Details -->
+    @if ($selectedTransaction)
+        <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0, 0, 0, 0.5);">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Transaction Details (ID: {{ $selectedTransaction->id }})</h5>
+                        <button type="button" class="btn-close" wire:click="closeModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p><strong>Date:</strong> {{ $selectedTransaction->created_at->format('Y-m-d') }}</p>
+                        <p><strong>Cashier:</strong> {{ $selectedTransaction->cashier->name }}</p>
+                        <!-- Add cashier name -->
+                        <p><strong>Total Price:</strong> Rp
+                            {{ number_format($selectedTransaction->total_price, 2, ',', '.') }}</p>
+                        <p><strong>Items:</strong></p>
+                        <ul>
+                            @foreach ($selectedTransaction->items as $item)
+                                <li>{{ $item->product->name }} - {{ $item->quantity }} pcs (Rp
+                                    {{ number_format($item->total_price, 2, ',', '.') }})</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" wire:click="closeModal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>

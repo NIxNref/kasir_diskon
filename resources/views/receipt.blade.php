@@ -48,6 +48,7 @@
         <h2>Transaction Receipt</h2>
         <p><strong>Transaction ID:</strong> {{ $transaction->id }}</p>
         <p><strong>Member ID:</strong> {{ $transaction->member_id ?? 'N/A' }}</p>
+        <p><strong>Cashier:</strong> {{ $transaction->cashier->name }}</p>
         <table>
             <thead>
                 <tr>

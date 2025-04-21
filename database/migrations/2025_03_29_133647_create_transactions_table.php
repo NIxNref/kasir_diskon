@@ -13,8 +13,9 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('member_id')->nullable(); // Add member_id
             $table->integer('total_price')->default(0);
-            $table->enum('payment_method', ['cash', 'credit_card', 'debit_card', 'qris'])->default('cash'); // Add payment method
+            $table->foreignId('cashier_id')->constrained('users')->onDelete('cascade');            $table->enum('payment_method', ['cash', 'credit_card', 'debit_card', 'qris'])->default('cash'); // Add payment method
             $table->timestamps();
         });
     }

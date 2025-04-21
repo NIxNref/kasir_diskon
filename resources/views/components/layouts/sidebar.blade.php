@@ -5,8 +5,14 @@
                 <h3 class="text-primary"><i class="fa fa-hashtag me-2"></i>{{ config('app.name', 'DiscountHub') }}</h3>
             </a>
             <div class="navbar-nav w-100">
-
-                <a href="{{ route('home') }}" class="nav-item nav-link {{ request()->routeIs('home') ? 'active' : '' }}">
+                @if (auth()->user()->role === 'kasir')
+                    <a href="{{ route('transaction') }}"
+                        class="nav-item nav-link {{ request()->routeIs('home') ? 'active' : '' }}">
+                        <i class="fa fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                @endif
+                <a href="{{ route('home') }}"
+                    class="nav-item nav-link {{ request()->routeIs('home') ? 'active' : '' }}">
                     <i class="fa fa-tachometer-alt me-2"></i>Dashboard
                 </a>
                 <a href="{{ route('user') }}"
@@ -16,6 +22,14 @@
                 <a href="{{ route('product') }}"
                     class="nav-item nav-link {{ request()->routeIs('product') ? 'active' : '' }}">
                     <i class="fa fa-box me-2"></i>Products
+                </a>
+                <a href="{{ route('categories') }}"
+                    class="nav-item nav-link {{ request()->routeIs('categories') ? 'active' : '' }}">
+                    <i class="fa fa-list-alt me-2"></i>Categories
+                </a>
+                <a href="{{ route('discounts') }}"
+                    class="nav-item nav-link {{ request()->routeIs('discounts') ? 'active' : '' }}">
+                    <i class="fa fa-tag me-2"></i>Discounts
                 </a>
                 <a href="{{ route('report') }}"
                     class="nav-item nav-link {{ request()->routeIs('report') ? 'active' : '' }}">

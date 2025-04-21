@@ -24,8 +24,8 @@ class AdminSeeder extends Seeder
         ]);
 
         User::create([
-            'name' => 'mira',
-            'email' => 'mira@arkas.my.id',
+            'name' => 'test',
+            'email' => 'test@arkas.my.id',
             'password' => Hash::make('password'),
             'role' => 'kasir', // Sesuai dengan ENUM yang didefinisikan
             'isDeleted' => 0,

@@ -10,15 +10,23 @@ class Products extends Model
     protected $table = 'products';
 
     protected $fillable = [
+        'image',
         'product_code',
+        'category_id',
         'name',
         'price',
         'stock',
-        'discount_type',
-        'discount_value',
-        'expiration_date',
-        'event_discount',
     ];
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_id');
+    }
+
+    public function discount()
+    {
+        return $this->hasOne(Discounts::class, 'buy_product_id');
+    }
 
     protected $casts = [
         'expiration_date' => 'date', // Ensure expiration_date is cast to a Carbon date instance

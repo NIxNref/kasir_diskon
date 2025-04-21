@@ -13,14 +13,13 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->string('product_code')->unique(); // Ensure unique product codes
+            $table->string('image')->nullable();
+            $table->string('product_code')->unique();
+            $table->unsignedBigInteger('category_id')->nullable(); // Ensure this is unsigned
+            $table->foreign('category_id')->references('id')->on('categories')->onDelete('set null');
             $table->string('name');
             $table->integer('price');
             $table->integer('stock')->default(1);
-            $table->enum('discount_type', ['none', 'buy_one_get_one', 'buy_two_get_one', 'percentage'])->default('none');
-            $table->unsignedInteger('discount_value')->nullable(); // Allow null for discount value
-            $table->date('expiration_date')->nullable(); // Add expiration date
-            $table->string('event_discount')->nullable(); // Add event discount
             $table->timestamps();
         });
     }

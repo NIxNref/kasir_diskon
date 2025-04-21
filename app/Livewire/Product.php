@@ -3,12 +3,16 @@
 namespace App\Livewire;
 
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use App\Models\Products;
+use App\Models\Category;
 
 class Product extends Component
 {
+    use WithFileUploads;
+
     public $pilihanMenu = 'lihat';
-    public $productId, $product_code, $name, $price, $stock, $discount_type, $discount_value, $expiration_date, $event_discount;
+    public $productId, $product_code, $name, $price, $stock, $category_id, $image;
     public $produkTerpilih;
 
     public function resetForm()
@@ -18,10 +22,8 @@ class Product extends Component
         $this->name = '';
         $this->price = '';
         $this->stock = 1;
-        $this->discount_type = 'none';
-        $this->discount_value = null;
-        $this->expiration_date = null;
-        $this->event_discount = null;
+        $this->category_id = null;
+        $this->image = null;
     }
 
     public function tambahProduct()
@@ -31,21 +33,19 @@ class Product extends Component
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:1',
-            'discount_type' => 'required|in:none,buy_one_get_one,buy_two_get_one,percentage',
-            'discount_value' => 'nullable|numeric|min:0|max:100',
-            'expiration_date' => 'nullable|date',
-            'event_discount' => 'nullable|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'image' => 'nullable|image|max:2048', // Validate image
         ]);
+
+        $imagePath = $this->image ? $this->image->store('products', 'public') : null;
 
         Products::create([
             'product_code' => $this->product_code,
             'name' => $this->name,
             'price' => $this->price,
             'stock' => $this->stock,
-            'discount_type' => $this->discount_type,
-            'discount_value' => $this->discount_value,
-            'expiration_date' => $this->expiration_date,
-            'event_discount' => $this->event_discount,
+            'category_id' => $this->category_id,
+            'image' => $imagePath,
         ]);
 
         $this->resetForm();
@@ -59,21 +59,21 @@ class Product extends Component
             'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:1',
-            'discount_type' => 'required|in:none,buy_one_get_one,buy_two_get_one,percentage',
-            'discount_value' => 'nullable|numeric|min:0|max:100',
-            'expiration_date' => 'nullable|date',
-            'event_discount' => 'nullable|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'image' => 'nullable|image|max:2048', // Validate image
         ]);
 
-        Products::where('id', $this->productId)->update([
+        $product = Products::findOrFail($this->productId);
+
+        $imagePath = $this->image ? $this->image->store('products', 'public') : $product->image;
+
+        $product->update([
             'product_code' => $this->product_code,
             'name' => $this->name,
             'price' => $this->price,
             'stock' => $this->stock,
-            'discount_type' => $this->discount_type,
-            'discount_value' => $this->discount_value,
-            'expiration_date' => $this->expiration_date,
-            'event_discount' => $this->event_discount,
+            'category_id' => $this->category_id,
+            'image' => $imagePath,
         ]);
 
         $this->resetForm();
@@ -88,10 +88,7 @@ class Product extends Component
         $this->name = $product->name;
         $this->price = $product->price;
         $this->stock = $product->stock;
-        $this->discount_type = $product->discount_type;
-        $this->discount_value = $product->discount_value;
-        $this->expiration_date = $product->expiration_date;
-        $this->event_discount = $product->event_discount;
+        $this->category_id = $product->category_id;
         $this->pilihanMenu = 'edit';
     }
 
@@ -120,7 +117,8 @@ class Product extends Component
     public function render()
     {
         return view('livewire.product', [
-            'semuaProduk' => Products::all()
+            'semuaProduk' => Products::with('category')->get(), // Fetch products with their categories
+            'categories' => Category::all(), // Fetch all categories
         ]);
     }
 }
