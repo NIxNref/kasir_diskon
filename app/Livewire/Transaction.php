@@ -53,8 +53,13 @@ class Transaction extends Component
                         session()->flash('info', "Buy {$discount->buy_quantity} to get {$discount->free_quantity} free. Add more items to qualify for the discount.");
                     }
                 } elseif ($discount->discount_type === 'percentage') {
-                    $discountedPrice = $priceBeforeDiscount * (1 - ($discount->discount_percentage / 100));
-                    $discountDescription = "{$discount->discount_percentage}% Off";
+                    // Check if the quantity meets the required buy_quantity
+                    if ($this->quantity >= $discount->buy_quantity) {
+                        $discountedPrice = $priceBeforeDiscount * (1 - ($discount->discount_percentage / 100));
+                        $discountDescription = "{$discount->discount_percentage}% Off";
+                    } else {
+                        session()->flash('info', "Buy at least {$discount->buy_quantity} to qualify for a {$discount->discount_percentage}% discount.");
+                    }
                 }
             }
 
@@ -81,12 +86,16 @@ class Transaction extends Component
                                 // Add or update the free item in the cart
                                 $this->addOrUpdateFreeItem($discount->free_product_id, $freeItems);
                             } else {
-                                $discountDescription = 'None (Insufficient Quantity for Discount)';
+                                $discountDescription = 'None';
                                 session()->flash('info', "Buy {$discount->buy_quantity} to get {$discount->free_quantity} free. Add more items to qualify for the discount.");
                             }
                         } elseif ($discount->discount_type === 'percentage') {
-                            $discountedPrice = $priceBeforeDiscount * (1 - ($discount->discount_percentage / 100));
-                            $discountDescription = "{$discount->discount_percentage}% Off";
+                            if ($newQuantity >= $discount->buy_quantity) {
+                                $discountedPrice = $priceBeforeDiscount * (1 - ($discount->discount_percentage / 100));
+                                $discountDescription = "{$discount->discount_percentage}% Off";
+                            } else {
+                                $discountDescription = 'None';
+                            }
                         }
                     }
 
@@ -110,12 +119,6 @@ class Transaction extends Component
                 'discount' => $discountDescription,
                 'total_price' => $discountedPrice,
             ];
-
-            // Add free item if applicable
-            if ($discount && $discount->discount_type === 'buy_x_get_y' && $this->quantity >= $discount->buy_quantity) {
-                $freeItems = intdiv($this->quantity, $discount->buy_quantity) * $discount->free_quantity;
-                $this->addOrUpdateFreeItem($discount->free_product_id, $freeItems);
-            }
 
             $this->reset(['product_code', 'quantity']);
         } else {
@@ -182,7 +185,7 @@ class Transaction extends Component
                     // Add or update the free item in the cart
                     $this->addOrUpdateFreeItem($discount->free_product_id, $freeItems);
                 } else {
-                    $discountDescription = 'None (Insufficient Quantity for Discount)';
+                    $discountDescription = 'None';
                 }
             } elseif ($discount->discount_type === 'percentage') {
                 $discountedPrice = $priceBeforeDiscount * (1 - ($discount->discount_percentage / 100));

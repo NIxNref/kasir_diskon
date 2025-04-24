@@ -17,12 +17,12 @@
         </div>
     </div>
 
-    <!-- Add Product and Member ID Section -->
+    <!-- Add Product Section -->
     <div class="row mb-4">
         <div class="col-12">
             <div class="card border-primary">
                 <div class="card-body">
-                    <h5>Add Product and Member Information</h5>
+                    <h5>Add Product</h5>
                     <div>
                         @if (session()->has('error'))
                             <div class="alert alert-danger">{{ session('error') }}</div>
@@ -38,10 +38,6 @@
                             <label for="quantity" class="form-label">Quantity</label>
                             <input type="number" class="form-control" wire:model="quantity" min="1"
                                 value="1">
-                        </div>
-                        <div class="col-md-3 mb-3">
-                            <label for="member_id" class="form-label">Member ID (Optional)</label>
-                            <input type="text" class="form-control" wire:model="member_id">
                         </div>
                     </div>
                     <div class="text-end">
@@ -105,7 +101,13 @@
                             </tbody>
                         </table>
                     </div>
+
+                    <!-- Member ID and Payment Section -->
                     <div class="row mt-3">
+                        <div class="col-md-6">
+                            <label for="member_id" class="form-label">Member ID (Optional)</label>
+                            <input type="text" class="form-control" wire:model="member_id">
+                        </div>
                         <div class="col-md-6">
                             <label for="payment_method" class="form-label">Payment Method</label>
                             <select class="form-control" wire:model="payment_method">
@@ -116,6 +118,7 @@
                             </select>
                         </div>
                     </div>
+
                     <div class="text-end mt-3">
                         <h5>Total Price: {{ number_format($this->cartTotalPrice, 2, ',', '.') }}</h5>
                     </div>

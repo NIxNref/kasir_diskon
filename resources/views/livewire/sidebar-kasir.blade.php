@@ -3,7 +3,7 @@
         <a href="#" class="navbar-brand mx-4 mb-3">
             <h3 class="text-primary"><i class="fa fa-hashtag me-2"></i>{{ config('app.name', 'DiscountHub') }}</h3>
         </a>
-        <h5 class="text-primary mx-4">Product List</h5>
+        <h5 class="text-primary mx-4">Special Offers</h5>
         <div class="product-list">
             @foreach ($products as $product)
                 <div class="card mb-3 shadow-sm product-card" style="width: 100%; border-radius: 10px; cursor: pointer;"
@@ -31,9 +31,18 @@
                                         Discount:
                                         @if ($product->discount->discount_type === 'percentage')
                                             {{ $product->discount->discount_percentage }}% Off
+                                            <br>
+                                            <span class="text-muted" style="font-size: 11px;">
+                                                Buy at least {{ $product->discount->buy_quantity }} to apply.
+                                            </span>
                                         @elseif ($product->discount->discount_type === 'buy_x_get_y')
                                             Buy {{ $product->discount->buy_quantity }} Get
                                             {{ $product->discount->free_quantity }}
+                                            <br>
+                                            <span class="text-muted" style="font-size: 11px;">
+                                                Buy {{ $product->discount->buy_quantity }} to get
+                                                {{ $product->discount->free_quantity }} free.
+                                            </span>
                                         @endif
                                     </p>
                                 @else
@@ -60,17 +69,17 @@
                 if (barcodeInput) {
                     barcodeInput.value = productCode;
                     barcodeInput.dispatchEvent(new Event(
-                    'input')); // Trigger Livewire input binding
+                        'input')); // Trigger Livewire input binding
 
                     // Set quantity to 1 if not already set or invalid
                     if (quantityInput && (!quantityInput.value || quantityInput.value <= 0)) {
                         quantityInput.value = 1;
                         quantityInput.dispatchEvent(new Event(
-                        'input')); // Trigger Livewire input binding
+                            'input')); // Trigger Livewire input binding
                     }
 
                     const addToCartButton = document.querySelector(
-                    '[wire\\:click="addToCart"]');
+                        '[wire\\:click="addToCart"]');
                     if (addToCartButton) {
                         addToCartButton.click(); // Simulate clicking the "Add to Cart" button
                     }

@@ -14,9 +14,9 @@ return new class extends Migration
         Schema::create('discounts', function (Blueprint $table) {
             $table->id();
             $table->string('name'); // Discount name
-            $table->foreignId('buy_product_id')->constrained('products')->onDelete('cascade'); // Product to buy
+            $table->foreignId('buy_product_id')->nullable(); // Product to buy
             $table->integer('buy_quantity'); // Quantity to buy
-            $table->foreignId('free_product_id')->nullable()->constrained('products')->onDelete('cascade'); // Free product
+            $table->foreignId('free_product_id')->nullable(); // Free product
             $table->integer('free_quantity')->nullable(); // Quantity of free product
             $table->enum('discount_type', ['buy_x_get_y', 'percentage'])->default('buy_x_get_y'); // Discount type
             $table->integer('discount_percentage')->nullable(); // Percentage discount (if applicable)
