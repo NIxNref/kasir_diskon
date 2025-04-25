@@ -8,81 +8,120 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            font-size: 12px;
+            margin: 0;
+            padding: 0;
         }
 
         .receipt {
-            max-width: 600px;
+            width: 100%;
+            max-width: 300px;
             margin: auto;
+            padding: 10px;
             border: 1px solid #ddd;
-            padding: 20px;
             border-radius: 5px;
         }
 
-        .receipt h2 {
+        .receipt-header,
+        .receipt-footer {
             text-align: center;
+            margin-bottom: 10px;
         }
 
-        .receipt table {
+        .receipt-header h2 {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .receipt-header p {
+            margin: 0;
+            font-size: 10px;
+        }
+
+        .receipt-body table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 10px;
         }
 
-        .receipt table th,
-        .receipt table td {
-            border: 1px solid #ddd;
-            padding: 8px;
+        .receipt-body table th,
+        .receipt-body table td {
             text-align: left;
+            padding: 5px;
+            border-bottom: 1px solid #ddd;
         }
 
-        .receipt .total {
+        .receipt-summary {
+            margin-top: 10px;
+        }
+
+        .receipt-summary p {
+            margin: 5px 0;
             text-align: right;
+        }
+
+        .receipt-footer p {
+            font-size: 10px;
+            margin: 5px 0;
+        }
+
+        .receipt-footer .thank-you {
             font-weight: bold;
         }
     </style>
 </head>
 
-<body onload="printAndRedirect()">
+<body>
     <div class="receipt">
-        <h2>Transaction Receipt</h2>
-        <p><strong>Transaction ID:</strong> {{ $transaction->id }}</p>
-        <p><strong>Member ID:</strong> {{ $transaction->member_id ?? 'N/A' }}</p>
-        <p><strong>Cashier:</strong> {{ $transaction->cashier->name }}</p>
-        <table>
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Quantity</th>
-                    <th>Price</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($transaction->items as $item)
-                    <tr>
-                        <td>{{ $item->product->name }}</td>
-                        <td>{{ $item->quantity }}</td>
-                        <td>{{ number_format($item->product->price, 2, ',', '.') }}</td>
-                        <td>{{ number_format($item->total_price, 2, ',', '.') }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-        <p class="total">Subtotal: Rp
-            {{ number_format($transaction->total_price - $transaction->total_price * 0.1, 2, ',', '.') }}</p>
-        <p class="total">Tax (10%): Rp {{ number_format($transaction->total_price * 0.1, 2, ',', '.') }}</p>
-        <p class="total">Total: Rp {{ number_format($transaction->total_price, 2, ',', '.') }}</p>
-    </div>
+        <div class="receipt-header">
+            <h2>DiscountHub</h2>
+            <p>Jl. Pekapuran, RT.02/RW.06, Curug</p>
+            <p>Depok, Jawa Barat</p>
+            <p>Telp: 0811-9892-324</p>
+        </div>
 
-    <script>
-        function printAndRedirect() {
-            window.print();
-            window.onafterprint = function() {
-                window.location.href = '/transaction';
-            };
-        }
-    </script>
+        <div class="receipt-body">
+            <p><strong>Transaction Code:</strong> {{ $transaction->transaction_code }}</p>
+            <p><strong>Date:</strong> {{ $transaction->created_at->format('d/m/Y H:i') }}</p>
+            <p><strong>Cashier:</strong> {{ $transaction->cashier->name }}</p>
+            @if ($transaction->member_id)
+                <p><strong>Member ID:</strong> {{ $transaction->member_id }}</p>
+            @endif
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Qty</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($transaction->items as $item)
+                        <tr>
+                            <td>{{ $item->product->name }}</td>
+                            <td>{{ $item->quantity }}</td>
+                            <td>{{ number_format($item->product->price, 0, ',', '.') }}</td>
+                            <td>{{ number_format($item->total_price, 0, ',', '.') }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        <div class="receipt-summary">
+            <p>Subtotal: Rp {{ number_format($transaction->total_price / 1.1, 0, ',', '.') }}</p>
+            <p>Tax (10%): Rp
+                {{ number_format($transaction->total_price - $transaction->total_price / 1.1, 0, ',', '.') }}</p>
+            <p><strong>Total: Rp {{ number_format($transaction->total_price, 0, ',', '.') }}</strong></p>
+        </div>
+
+        <div class="receipt-footer">
+            <p class="thank-you">Thank You for Shopping!</p>
+            <p>Visit Again!</p>
+        </div>
+    </div>
 </body>
 
 </html>

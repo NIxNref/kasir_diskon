@@ -59,7 +59,6 @@
             <div class="card border-primary">
                 <div class="card-body">
                     <h5>Cart</h5>
-                    <!-- Cart Section -->
                     <div class="table-responsive">
                         <table class="table table-bordered">
                             <thead>
@@ -102,7 +101,6 @@
                         </table>
                     </div>
 
-                    <!-- Member ID and Payment Section -->
                     <div class="row mt-3">
                         <div class="col-md-6">
                             <label for="member_id" class="form-label">Member ID (Optional)</label>
@@ -129,38 +127,65 @@
         </div>
     </div>
 
-    <!-- Hidden Receipt Section -->
-    @if ($receiptData)
-        <div id="receipt" style="display: none;">
-            <h2>Transaction Receipt</h2>
-            <p><strong>Transaction ID:</strong> {{ $receiptData['transaction_id'] }}</p>
-            <p><strong>Member ID:</strong> {{ $receiptData['member_id'] ?? 'N/A' }}</p>
-            <table border="1" style="width: 100%; border-collapse: collapse; margin-top: 20px;">
-                <thead>
-                    <tr>
-                        <th>Product</th>
-                        <th>Quantity</th>
-                        <th>Price</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($receiptData['items'] as $item)
-                        <tr>
-                            <td>{{ $item['name'] }}</td>
-                            <td>{{ $item['quantity'] }}</td>
-                            <td>{{ number_format($item['price'], 2, ',', '.') }}</td>
-                            <td>{{ number_format($item['total_price'], 2, ',', '.') }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-            <p><strong>Subtotal:</strong> Rp {{ number_format($receiptData['subtotal'], 2, ',', '.') }}</p>
-            <p><strong>Tax ({{ $receiptData['tax_rate'] }}%):</strong> Rp
-                {{ number_format($receiptData['tax_amount'], 2, ',', '.') }}</p>
-            <p><strong>Total:</strong> Rp {{ number_format($receiptData['total_price'], 2, ',', '.') }}</p>
+    <div class="text-end mt-3">
+        <button class="btn btn-primary" wire:click="previewTransaction" data-bs-toggle="modal"
+            data-bs-target="#transactionPreviewModal">
+            Preview Transaction
+        </button>
+    </div>
+
+    <!-- Transaction Preview Modal -->
+    <div class="modal fade" id="transactionPreviewModal" tabindex="-1" aria-labelledby="transactionPreviewModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="transactionPreviewModalLabel">Transaction Preview</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @if ($receiptData)
+                        <p><strong>Transaction Code:</strong> {{ $receiptData['transaction_code'] }}</p>
+                        <p><strong>Subtotal:</strong> Rp {{ number_format($receiptData['subtotal'], 0, ',', '.') }}</p>
+                        <p><strong>Tax ({{ $taxRate }}%):</strong> Rp
+                            {{ number_format($receiptData['tax_amount'], 0, ',', '.') }}</p>
+                        <p><strong>Total Price:</strong> Rp
+                            {{ number_format($receiptData['total_price'], 0, ',', '.') }}</p>
+                        <p><strong>Payment Method:</strong> {{ ucfirst($receiptData['payment_method']) }}</p>
+
+                        <table class="table table-bordered mt-3">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Discount</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($receiptData['cart'] as $item)
+                                    <tr>
+                                        <td>{{ $item['name'] }}</td>
+                                        <td>{{ $item['quantity'] }}</td>
+                                        <td>Rp {{ number_format($item['price'], 0, ',', '.') }}</td>
+                                        <td>{{ $item['discount'] }}</td>
+                                        <td>Rp {{ number_format($item['total_price'], 0, ',', '.') }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endif
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" wire:click="saveTransaction" data-bs-dismiss="modal">Save
+                        Transaction</button>
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
         </div>
-    @endif
+    </div>
+
 </div>
 
 <!-- Load QuaggaJS -->

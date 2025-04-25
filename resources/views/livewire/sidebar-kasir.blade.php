@@ -9,7 +9,6 @@
                 <div class="card mb-3 shadow-sm product-card" style="width: 100%; border-radius: 10px; cursor: pointer;"
                     data-product-code="{{ $product->product_code }}">
                     <div class="row g-0 align-items-center">
-                        <!-- Image Section -->
                         <div class="col-4 d-flex justify-content-center align-items-center">
                             @if ($product->image)
                                 <img src="{{ asset('storage/' . $product->image) }}" class="img-fluid rounded"
@@ -69,19 +68,18 @@
                 if (barcodeInput) {
                     barcodeInput.value = productCode;
                     barcodeInput.dispatchEvent(new Event(
-                        'input')); // Trigger Livewire input binding
+                        'input')); 
 
-                    // Set quantity to 1 if not already set or invalid
                     if (quantityInput && (!quantityInput.value || quantityInput.value <= 0)) {
                         quantityInput.value = 1;
                         quantityInput.dispatchEvent(new Event(
-                            'input')); // Trigger Livewire input binding
+                            'input')); 
                     }
 
                     const addToCartButton = document.querySelector(
                         '[wire\\:click="addToCart"]');
                     if (addToCartButton) {
-                        addToCartButton.click(); // Simulate clicking the "Add to Cart" button
+                        addToCartButton.click(); 
                     }
                 }
             });

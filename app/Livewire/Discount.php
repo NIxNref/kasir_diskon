@@ -10,7 +10,7 @@ class Discount extends Component
 {
     public $discountId, $name, $buy_product_id, $buy_quantity;
     public $free_product_id, $free_quantity;
-    public $discount_type = 'buy_x_get_y'; // Default value
+    public $discount_type = 'buy_x_get_y';
     public $discount_percentage;
     public $discounts;
 
@@ -28,7 +28,7 @@ class Discount extends Component
         $this->buy_quantity = 1;
         $this->free_product_id = null;
         $this->free_quantity = null;
-        $this->discount_type = 'buy_x_get_y'; // Default value
+        $this->discount_type = 'buy_x_get_y';
         $this->discount_percentage = null;
     }
 

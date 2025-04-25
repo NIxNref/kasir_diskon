@@ -39,17 +39,17 @@ class Products extends Model
     {
         $hargaSebelumDiskon = $this->price * $quantity;
 
-        // Apply expiration-based discount (e.g., 50% off if expired)
-        if ($this->expiration_date && Carbon::now()->greaterThan($this->expiration_date)) {
-            $hargaSebelumDiskon *= 0.5; // 50% discount for expired items
-        }
+        // // Apply expiration-based discount (e.g., 50% off if expired)
+        // if ($this->expiration_date && Carbon::now()->greaterThan($this->expiration_date)) {
+        //     $hargaSebelumDiskon *= 0.5; // 50% discount for expired items
+        // }
 
-        // Apply event-based discount
-        if ($this->event_discount === 'thanksgiving') {
-            $hargaSebelumDiskon *= 0.8; // 20% discount for Thanksgiving
-        } elseif ($this->event_discount === 'ramadhan') {
-            $hargaSebelumDiskon *= 0.9; // 10% discount for Ramadhan
-        }
+        // // Apply event-based discount
+        // if ($this->event_discount === 'thanksgiving') {
+        //     $hargaSebelumDiskon *= 0.8; // 20% discount for Thanksgiving
+        // } elseif ($this->event_discount === 'ramadhan') {
+        //     $hargaSebelumDiskon *= 0.9; // 10% discount for Ramadhan
+        // }
 
         // Apply percentage discount
         if ($this->discount_type === 'percentage' && $this->discount_value > 0) {

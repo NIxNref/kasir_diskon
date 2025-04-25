@@ -10,10 +10,10 @@ use App\Models\Transactions;
 class Transaction extends Component
 {
     public $member_id, $product_code, $quantity, $cart = [];
-    public $taxRate = 10; // Tax rate in percentage
+    public $taxRate = 10; 
     public $receiptData = null;
-    public $payment_method = 'cash'; // Default payment method
-    public $availableDiscount = null; // To store the available discount for the product
+    public $payment_method = 'cash'; 
+    public $availableDiscount = null; 
 
     public function addToCart()
     {
@@ -34,7 +34,6 @@ class Transaction extends Component
                 return;
             }
 
-            // Check for applicable discounts
             $discount = Discounts::where('buy_product_id', $product->id)->first();
             $priceBeforeDiscount = $product->price * $this->quantity;
             $discountedPrice = $priceBeforeDiscount;
@@ -47,13 +46,11 @@ class Transaction extends Component
                         $discountedPrice = $priceBeforeDiscount;
                         $discountDescription = "Buy {$discount->buy_quantity} Get {$discount->free_quantity}";
 
-                        // Add or update the free item in the cart
                         $this->addOrUpdateFreeItem($discount->free_product_id, $freeItems);
                     } else {
                         session()->flash('info', "Buy {$discount->buy_quantity} to get {$discount->free_quantity} free. Add more items to qualify for the discount.");
                     }
                 } elseif ($discount->discount_type === 'percentage') {
-                    // Check if the quantity meets the required buy_quantity
                     if ($this->quantity >= $discount->buy_quantity) {
                         $discountedPrice = $priceBeforeDiscount * (1 - ($discount->discount_percentage / 100));
                         $discountDescription = "{$discount->discount_percentage}% Off";
@@ -63,10 +60,8 @@ class Transaction extends Component
                 }
             }
 
-            // Check if the product already exists in the cart
             foreach ($this->cart as $index => $item) {
                 if ($item['product_id'] === $product->id) {
-                    // Update the quantity and recalculate the total price
                     $newQuantity = $item['quantity'] + $this->quantity;
                     if ($product->stock < $newQuantity) {
                         session()->flash('error', 'Insufficient stock for the selected product.');
@@ -83,7 +78,6 @@ class Transaction extends Component
                                 $discountedPrice = $priceBeforeDiscount;
                                 $discountDescription = "Buy {$discount->buy_quantity} Get {$discount->free_quantity}";
 
-                                // Add or update the free item in the cart
                                 $this->addOrUpdateFreeItem($discount->free_product_id, $freeItems);
                             } else {
                                 $discountDescription = 'None';
@@ -109,7 +103,6 @@ class Transaction extends Component
                 }
             }
 
-            // Add a new item to the cart if it doesn't already exist
             $this->cart[] = [
                 'product_id' => $product->id,
                 'name' => $product->name,
@@ -131,7 +124,6 @@ class Transaction extends Component
         if (isset($this->cart[$index])) {
             $product = Products::find($this->cart[$index]['product_id']);
 
-            // Check if stock is sufficient
             if ($product && $this->cart[$index]['quantity'] < $product->stock) {
                 $this->cart[$index]['quantity']++;
                 $this->updateCartItem($index, $product);
@@ -148,16 +140,14 @@ class Transaction extends Component
             $this->cart[$index]['quantity']--;
             $this->updateCartItem($index, $product);
 
-            // Check if the item has a discount and if the quantity falls below the required amount
             $discount = Discounts::where('buy_product_id', $product->id)->first();
             if ($discount && $discount->discount_type === 'buy_x_get_y') {
                 $quantity = $this->cart[$index]['quantity'];
                 if ($quantity < $discount->buy_quantity) {
-                    // Remove the free item from the cart
                     foreach ($this->cart as $cartIndex => $item) {
                         if ($item['product_id'] === $discount->free_product_id) {
                             unset($this->cart[$cartIndex]);
-                            $this->cart = array_values($this->cart); // Reindex the cart array
+                            $this->cart = array_values($this->cart); 
                             break;
                         }
                     }
@@ -173,7 +163,6 @@ class Transaction extends Component
         $discountedPrice = $priceBeforeDiscount;
         $discountDescription = 'None';
 
-        // Check for applicable discounts
         $discount = Discounts::where('buy_product_id', $product->id)->first();
         if ($discount) {
             if ($discount->discount_type === 'buy_x_get_y') {
@@ -182,7 +171,6 @@ class Transaction extends Component
                     $discountedPrice = $priceBeforeDiscount;
                     $discountDescription = "Buy {$discount->buy_quantity} Get {$discount->free_quantity}";
 
-                    // Add or update the free item in the cart
                     $this->addOrUpdateFreeItem($discount->free_product_id, $freeItems);
                 } else {
                     $discountDescription = 'None';
@@ -198,31 +186,23 @@ class Transaction extends Component
         $this->cart[$index]['discount'] = $discountDescription;
     }
 
-    /**
-     * Add or update the free item in the cart.
-     *
-     * @param int $freeProductId
-     * @param int $freeQuantity
-     */
+    
     private function addOrUpdateFreeItem($freeProductId, $freeQuantity)
     {
         $freeProduct = Products::find($freeProductId);
         if ($freeProduct) {
             foreach ($this->cart as $index => $item) {
-                // Check if the free item already exists in the cart
                 if ($item['product_id'] === $freeProduct->id && strpos($item['name'], '(Free)') !== false) {
-                    // Update the quantity of the free item
                     $this->cart[$index]['quantity'] = $freeQuantity;
                     return;
                 }
             }
 
-            // Add the free item to the cart if it doesn't already exist
             $this->cart[] = [
                 'product_id' => $freeProduct->id,
                 'name' => $freeProduct->name . ' (Free)',
                 'quantity' => $freeQuantity,
-                'price' => 0, // Free item, so price is 0
+                'price' => 0,
                 'price_before_discount' => 0,
                 'discount' => 'Free Item',
                 'total_price' => 0,
@@ -236,18 +216,15 @@ class Transaction extends Component
             $productId = $this->cart[$index]['product_id'];
             $product = Products::find($productId);
 
-            // Remove the item from the cart
             unset($this->cart[$index]);
-            $this->cart = array_values($this->cart); // Reindex the cart array
+            $this->cart = array_values($this->cart);
 
-            // Check if the removed item had a discount and if it affects a free item
             $discount = Discounts::where('buy_product_id', $productId)->first();
             if ($discount && $discount->discount_type === 'buy_x_get_y') {
-                // Find and remove the free item from the cart
                 foreach ($this->cart as $cartIndex => $item) {
                     if ($item['product_id'] === $discount->free_product_id) {
                         unset($this->cart[$cartIndex]);
-                        $this->cart = array_values($this->cart); // Reindex the cart array
+                        $this->cart = array_values($this->cart); 
                         break;
                     }
                 }
@@ -265,31 +242,42 @@ class Transaction extends Component
         $taxAmount = $subtotal * ($this->taxRate / 100);
         $totalPriceWithTax = $subtotal + $taxAmount;
 
+        // Generate a unique transaction code
+        $transactionCode = 'TRX-' . strtoupper(uniqid());
+
+
         $transaction = Transactions::create([
-            'cashier_id' => auth()->id(), // Set the cashier ID to the currently logged-in user
+            'transaction_code' => $transactionCode,
+            'cashier_id' => auth()->id(),
             'member_id' => $this->member_id,
             'total_price' => $totalPriceWithTax,
             'payment_method' => $this->payment_method,
         ]);
 
         foreach ($this->cart as $item) {
+            $discountAmount = ($item['price_before_discount'] ?? 0) - ($item['total_price'] ?? 0);
+            
+            \Log::info("Item: {$item['name']}, Harga sebelum: {$item['price_before_discount']}, Setelah: {$item['total_price']}, Diskon: $discountAmount");
+        
             $transaction->items()->create([
                 'product_id' => $item['product_id'],
                 'quantity' => $item['quantity'],
                 'total_price' => $item['total_price'],
+                'discount_amount' => $discountAmount,
             ]);
+        
+        
 
-            // Decrease the product stock
             $product = Products::find($item['product_id']);
             if ($product) {
                 $product->decrement('stock', $item['quantity']);
             }
         }
 
-        $this->reset(['member_id', 'cart']);
+        $this->reset(['cart', 'member_id', 'payment_method']);
         session()->flash('message', 'Transaction saved successfully!');
 
-        return redirect()->route('receipt', ['transaction_id' => $transaction->id]);
+        return redirect()->route('receipt', ['transaction' => $transactionCode]);
     }
 
     public function getCartTotalPriceProperty()

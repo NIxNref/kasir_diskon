@@ -44,10 +44,10 @@
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>Transaction ID</th>
+                        <th>Transaction Code</th>
                         <th>Date</th>
                         <th>Total Price</th>
-                        <th>Cashier</th> <!-- Add this column -->
+                        <th>Cashier</th>
                         <th>Details</th>
                     </tr>
                 </thead>
@@ -55,10 +55,10 @@
                     @foreach ($transactions as $index => $transaction)
                         <tr wire:click="showTransactionDetails({{ $transaction->id }})" style="cursor: pointer;">
                             <td>{{ $index + 1 }}</td>
-                            <td>{{ $transaction->id }}</td>
+                            <td>{{ $transaction->transaction_code }}</td>
                             <td>{{ $transaction->created_at->format('Y-m-d') }}</td>
                             <td>Rp {{ number_format($transaction->total_price, 2, ',', '.') }}</td>
-                            <td>{{ $transaction->cashier->name }}</td> <!-- Display cashier name -->
+                            <td>{{ $transaction->cashier->name }}</td>
                             <td>
                                 click to view details
                             </td>
@@ -75,13 +75,13 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Transaction Details (ID: {{ $selectedTransaction->id }})</h5>
+                        <h5 class="modal-title">Transaction Details</h5>
                         <button type="button" class="btn-close" wire:click="closeModal"></button>
                     </div>
                     <div class="modal-body">
+                        <p><strong>Transaction Code:</strong> {{ $selectedTransaction->transaction_code }}</p>
                         <p><strong>Date:</strong> {{ $selectedTransaction->created_at->format('Y-m-d') }}</p>
                         <p><strong>Cashier:</strong> {{ $selectedTransaction->cashier->name }}</p>
-                        <!-- Add cashier name -->
                         <p><strong>Total Price:</strong> Rp
                             {{ number_format($selectedTransaction->total_price, 2, ',', '.') }}</p>
                         <p><strong>Items:</strong></p>

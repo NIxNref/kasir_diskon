@@ -19,7 +19,7 @@ class AdminSeeder extends Seeder
             'name' => 'admin',
             'email' => 'admin@arkas.my.id',
             'password' => Hash::make('password'),
-            'role' => 'admin', // Sesuai dengan ENUM yang didefinisikan
+            'role' => 'admin', 
             'isDeleted' => 0,
         ]);
 
@@ -27,7 +27,7 @@ class AdminSeeder extends Seeder
             'name' => 'test',
             'email' => 'test@arkas.my.id',
             'password' => Hash::make('password'),
-            'role' => 'kasir', // Sesuai dengan ENUM yang didefinisikan
+            'role' => 'kasir', 
             'isDeleted' => 0,
         ]);
     }

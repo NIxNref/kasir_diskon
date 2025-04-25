@@ -28,8 +28,8 @@ class Report extends Component
 
     public function mount()
     {
-        $this->startDate = Carbon::today()->subMonth()->toDateString(); // Default to one month ago
-        $this->endDate = Carbon::today()->toDateString(); // Default to today
+        $this->startDate = Carbon::today()->subMonth()->toDateString(); 
+        $this->endDate = Carbon::today()->toDateString(); 
         $this->loadReport();
     }
 

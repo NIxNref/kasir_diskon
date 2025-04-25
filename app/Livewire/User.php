@@ -46,7 +46,6 @@ class User extends Component
                 ]);
             }
         } else {
-            // Cek apakah email sudah ada sebelum insert
             if (ModelUser::where('email', $this->email)->exists()) {
                 session()->flash('error', 'Email sudah terdaftar');
                 return;
@@ -74,8 +73,8 @@ class User extends Component
     public function deleteUser()
     {
         if ($this->penggunaTerpilih) {
-            $this->penggunaTerpilih->isDeleted = 1; // Set isDeleted to true
-            $this->penggunaTerpilih->save(); // Save the changes to the database
+            $this->penggunaTerpilih->isDeleted = 1; 
+            $this->penggunaTerpilih->save();
             $this->pilihMenu('lihat');
         }
     }
@@ -114,7 +113,6 @@ class User extends Component
         if ($this->userId) {
             $user = ModelUser::find($this->userId);
             if ($user) {
-                // Perbarui hanya jika password diubah
                 $data = [
                     'name' => $this->name,
                     'email' => $this->email,

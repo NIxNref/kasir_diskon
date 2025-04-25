@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
+            $table->string('transaction_code')->unique(); // Unique transaction code
             $table->foreignId('member_id')->nullable(); // Add member_id
             $table->integer('total_price')->default(0);
             $table->foreignId('cashier_id')->constrained('users')->onDelete('cascade');            $table->enum('payment_method', ['cash', 'credit_card', 'debit_card', 'qris'])->default('cash'); // Add payment method

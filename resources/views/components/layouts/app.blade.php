@@ -74,7 +74,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script>
         document.getElementById('logout-button').addEventListener('click', function(event) {
-            event.preventDefault(); // Mencegah redirect langsung
+            event.preventDefault(); 
 
             Swal.fire({
                 title: "Are you sure?",

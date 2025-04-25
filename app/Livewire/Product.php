@@ -34,7 +34,7 @@ class Product extends Component
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:1',
             'category_id' => 'required|exists:categories,id',
-            'image' => 'nullable|image|max:2048', // Validate image
+            'image' => 'nullable|image|max:2048', 
         ]);
 
         $imagePath = $this->image ? $this->image->store('products', 'public') : null;
@@ -60,7 +60,7 @@ class Product extends Component
             'price' => 'required|numeric|min:0',
             'stock' => 'required|integer|min:1',
             'category_id' => 'required|exists:categories,id',
-            'image' => 'nullable|image|max:2048', // Validate image
+            'image' => 'nullable|image|max:2048',
         ]);
 
         $product = Products::findOrFail($this->productId);
@@ -117,8 +117,8 @@ class Product extends Component
     public function render()
     {
         return view('livewire.product', [
-            'semuaProduk' => Products::with('category')->get(), // Fetch products with their categories
-            'categories' => Category::all(), // Fetch all categories
+            'semuaProduk' => Products::with('category')->get(), 
+            'categories' => Category::all(), 
         ]);
     }
 }

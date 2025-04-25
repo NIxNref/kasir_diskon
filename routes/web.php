@@ -32,5 +32,6 @@ Route::get('/product', Product::class)->middleware(['auth'])->name('product');
 Route::get('/report', Report::class)->name('report');
 Route::get('/discounts', Discount::class)->middleware('auth')->name('discounts');
 Route::get('/transaction', Transaction::class)->middleware(['auth'])->name('transaction');
-Route::get('/receipt/{transaction_id}', [ReceiptController::class, 'show'])->name('receipt');
+Route::get('/receipt/{transaction}', [ReceiptController::class, 'generateReceipt'])->name('receipt');
+Route::get('/receipt/{transaction}/download', [ReceiptController::class, 'downloadReceipt'])->name('download-receipt');
 Route::get('/categories', Category::class)->name('categories');
